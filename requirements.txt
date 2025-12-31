@@ -10,6 +10,9 @@ websockets==14.1
 # Windows PTY support (optional - will use mock PTY if not available)
 pywinpty>=2.0.13;platform_system=="Windows"
 
+# Process management for cleanup on exit
+psutil>=5.9.0
+
 # Development/Testing dependencies
 pytest==8.3.4
 pytest-asyncio==0.24.0

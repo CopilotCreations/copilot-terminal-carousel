@@ -19,7 +19,10 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
     ) -> None:
         """Add custom fields to the log record."""
         super().add_fields(log_record, record, message_dict)
-        log_record["ts"] = self.formatTime(record, self.datefmt)
+        # Use ISO format with milliseconds (strftime doesn't support %f)
+        from datetime import datetime, timezone
+        dt = datetime.fromtimestamp(record.created, tz=timezone.utc)
+        log_record["ts"] = dt.strftime("%Y-%m-%dT%H:%M:%S") + f".{int(record.msecs):03d}Z"
         log_record["level"] = record.levelname
         log_record["event"] = record.name
         if record.exc_info:
