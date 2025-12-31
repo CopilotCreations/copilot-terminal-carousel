@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  copilot-terminal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: copilot-terminal-carousel
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:C:/app/data
+    environment:
+      - HOST=0.0.0.0
+      - PORT=5000
+      - DATA_DIR=C:/app/data
+      - LOG_FILE=C:/app/data/logs/app.jsonl
+      - COPILOT_PATH=copilot.exe
+      - MAX_SESSIONS=10
+      - LOG_LEVEL=INFO
+      - ALLOW_NON_LOCALHOST=true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "powershell", "-Command", "Invoke-WebRequest -Uri 'http://localhost:5000/health' -UseBasicParsing"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# Note: This requires a Windows host with Docker Desktop in Windows container mode
+# Windows containers are required for ConPTY support used by pywinpty

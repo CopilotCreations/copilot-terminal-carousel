@@ -1,0 +1,2 @@
+{"ts": "2025-12-31T22:38:26.294Z", "sessionId": "ce3877df-ea74-4872-80f5-1d6efd06cc51", "seq": 1, "type": "lifecycle", "event": "created", "detail": {"pid": 99999}}
+{"ts": "2025-12-31T22:38:26.313Z", "sessionId": "ce3877df-ea74-4872-80f5-1d6efd06cc51", "seq": 2, "type": "lifecycle", "event": "terminated", "detail": {"exitCode": 0}}

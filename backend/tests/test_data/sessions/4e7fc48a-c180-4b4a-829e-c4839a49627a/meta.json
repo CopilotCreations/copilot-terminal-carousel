@@ -1,0 +1,13 @@
+{
+  "sessionId": "4e7fc48a-c180-4b4a-829e-c4839a49627a",
+  "status": "running",
+  "createdAt": "2025-12-31T22:37:37.683Z",
+  "lastActivityAt": "2025-12-31T22:37:37.683Z",
+  "workspacePath": "C:\\GIT\\agorevski\\CopilotCreations\\projects\\copilot-terminal-carousel\\backend\\tests\\test_data\\sessions\\4e7fc48a-c180-4b4a-829e-c4839a49627a\\workspace",
+  "pid": 99999,
+  "cols": 120,
+  "rows": 30,
+  "exitCode": null,
+  "copilotPath": "copilot.exe",
+  "error": null
+}

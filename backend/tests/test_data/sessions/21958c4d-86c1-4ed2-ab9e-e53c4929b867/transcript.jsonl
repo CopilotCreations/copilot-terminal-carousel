@@ -1,0 +1,4 @@
+{"ts": "2025-12-31T22:38:55.910Z", "sessionId": "21958c4d-86c1-4ed2-ab9e-e53c4929b867", "seq": 1, "type": "lifecycle", "event": "created", "detail": {"pid": 99999}}
+{"ts": "2025-12-31T22:38:55.912Z", "sessionId": "21958c4d-86c1-4ed2-ab9e-e53c4929b867", "seq": 2, "type": "lifecycle", "event": "attached", "detail": {"clientId": "e5039fd6-7168-448b-a0a5-69231eab47f8"}}
+{"ts": "2025-12-31T22:38:55.912Z", "sessionId": "21958c4d-86c1-4ed2-ab9e-e53c4929b867", "seq": 3, "type": "out", "data": "Welcome to Copilot Terminal (Mock Mode)\r\n$ "}
+{"ts": "2025-12-31T22:38:55.920Z", "sessionId": "21958c4d-86c1-4ed2-ab9e-e53c4929b867", "seq": 4, "type": "lifecycle", "event": "attached", "detail": {"clientId": "f0bdf6de-edb1-4e76-ab66-d1a4f1629959"}}

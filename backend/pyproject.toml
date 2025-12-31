@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "copilot-terminal-carousel"
+version = "1.0.0"
+description = "A Windows-only localhost web application providing browser-based terminal UI for GitHub Copilot CLI"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Copilot Terminal Carousel Team"}
+]
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn==0.32.1",
+    "pydantic==2.10.3",
+    "pydantic-settings==2.7.0",
+    "python-json-logger==2.0.7",
+    "aiofiles==24.1.0",
+    "websockets==14.1",
+    "pywinpty>=2.0.13;platform_system=='Windows'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.24.0",
+    "pytest-cov==6.0.0",
+    "coverage==7.6.9",
+    "httpx==0.28.1",
+    "ruff==0.8.2",
+    "black==24.10.0",
+    "mypy==1.13.0",
+    "types-aiofiles==24.1.0.20241221",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-v --cov=app --cov-report=term-missing --cov-report=html"
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/__init__.py", "app/*/__init__.py"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+fail_under = 75
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true

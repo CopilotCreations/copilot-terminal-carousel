@@ -1,0 +1,3 @@
+{"ts": "2025-12-31T22:37:36.480Z", "sessionId": "6fdf50bc-f4f4-4e68-b4ef-ba92d3f4868f", "seq": 1, "type": "lifecycle", "event": "created", "detail": {"pid": 99999}}
+{"ts": "2025-12-31T22:37:36.482Z", "sessionId": "6fdf50bc-f4f4-4e68-b4ef-ba92d3f4868f", "seq": 2, "type": "lifecycle", "event": "attached", "detail": {"clientId": "74c35fa1-6a85-42b5-9949-2d10ef3f6a75"}}
+{"ts": "2025-12-31T22:37:36.496Z", "sessionId": "6fdf50bc-f4f4-4e68-b4ef-ba92d3f4868f", "seq": 4, "type": "lifecycle", "event": "attached", "detail": {"clientId": "a8577a72-9c18-49e3-9a3a-d8430cb3daf6"}}

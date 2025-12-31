@@ -1,0 +1,3 @@
+{"ts": "2025-12-31T22:37:36.683Z", "sessionId": "3306fd66-79f2-465a-a82b-c2ef97e484df", "seq": 1, "type": "lifecycle", "event": "created", "detail": {"pid": 99999}}
+{"ts": "2025-12-31T22:37:36.685Z", "sessionId": "3306fd66-79f2-465a-a82b-c2ef97e484df", "seq": 3, "type": "out", "data": "Welcome to Copilot Terminal (Mock Mode)\r\n$ "}
+5-d800-46de-afbd-1bab4df7e795"}}

@@ -1,0 +1,204 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background-color: #252526;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+.app-header h1 {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.status-bar {
+  display: flex;
+  gap: 20px;
+  font-size: 0.875rem;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.connection-status.disconnected {
+  color: #f44747;
+}
+
+.server-time {
+  color: #808080;
+}
+
+.app-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.session-sidebar {
+  width: 280px;
+  background-color: #252526;
+  border-right: 1px solid #3c3c3c;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.new-session-btn {
+  margin: 12px;
+  padding: 10px 16px;
+  background-color: #0e639c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.new-session-btn:hover:not(:disabled) {
+  background-color: #1177bb;
+}
+
+.new-session-btn:disabled {
+  background-color: #3c3c3c;
+  color: #808080;
+  cursor: not-allowed;
+}
+
+.session-list {
+  flex: 1;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0 12px;
+}
+
+.session-list.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #808080;
+}
+
+.session-item {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background-color: #2d2d2d;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.session-item:hover {
+  background-color: #383838;
+}
+
+.session-item.selected {
+  background-color: #094771;
+  border-left: 3px solid #0e639c;
+}
+
+.session-item.exited {
+  opacity: 0.7;
+}
+
+.session-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.session-id {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+
+.session-status {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.session-status.running {
+  color: #6a9955;
+}
+
+.session-status.exited {
+  color: #f44747;
+}
+
+.session-meta {
+  font-size: 0.75rem;
+  color: #808080;
+}
+
+.terminate-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: #f44747;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.session-item:hover .terminate-btn {
+  opacity: 1;
+}
+
+.terminate-btn:hover {
+  background: #d43c3c;
+}
+
+.terminal-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.no-session {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #808080;
+  gap: 8px;
+}
