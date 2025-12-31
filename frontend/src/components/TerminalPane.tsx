@@ -1,13 +1,14 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { Terminal } from 'xterm';
+import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import type { ClientMessage, ServerMessage } from '../api/messageSchemas';
-import 'xterm/css/xterm.css';
+import '@xterm/xterm/css/xterm.css';
 import '../styles/terminal.css';
 
 interface TerminalPaneProps {
   sessionId: string;
+  sessionName?: string | null;
   send: (message: ClientMessage) => void;
   subscribe: (
     messageType: string,
@@ -15,7 +16,7 @@ interface TerminalPaneProps {
   ) => () => void;
 }
 
-export function TerminalPane({ sessionId, send, subscribe }: TerminalPaneProps) {
+export function TerminalPane({ sessionId, sessionName, send, subscribe }: TerminalPaneProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -152,7 +153,7 @@ export function TerminalPane({ sessionId, send, subscribe }: TerminalPaneProps) 
   return (
     <div className="terminal-pane">
       <div className="terminal-header">
-        <span className="terminal-title">Session: {sessionId.slice(0, 8)}...</span>
+        <span className="terminal-title">Session: {sessionName || sessionId.slice(0, 8) + '...'}</span>
       </div>
       <div ref={containerRef} className="terminal-content" />
     </div>

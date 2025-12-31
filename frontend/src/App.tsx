@@ -17,6 +17,7 @@ export default function App() {
     createSession,
     attachSession,
     terminateSession,
+    renameSession,
     listSessions,
   } = useWebSocket();
 
@@ -70,6 +71,20 @@ export default function App() {
     return unsubscribe;
   }, [subscribe]);
 
+  // Subscribe to session renamed
+  useEffect(() => {
+    const unsubscribe = subscribe('session.renamed', (message) => {
+      if (message.type === 'session.renamed') {
+        setSessions((prev) =>
+          prev.map((s) =>
+            s.sessionId === message.sessionId ? { ...s, name: message.name } : s
+          )
+        );
+      }
+    });
+    return unsubscribe;
+  }, [subscribe]);
+
   const handleNewSession = useCallback(async () => {
     await createSession();
   }, [createSession]);
@@ -87,6 +102,13 @@ export default function App() {
       await terminateSession(sessionId);
     },
     [terminateSession]
+  );
+
+  const handleRenameSession = useCallback(
+    async (sessionId: string, name: string) => {
+      await renameSession(sessionId, name);
+    },
+    [renameSession]
   );
 
   return (
@@ -110,6 +132,7 @@ export default function App() {
             selectedSessionId={selectedSessionId}
             onSelectSession={handleSelectSession}
             onTerminateSession={handleTerminateSession}
+            onRenameSession={handleRenameSession}
           />
         </aside>
 
@@ -117,6 +140,7 @@ export default function App() {
           {selectedSessionId ? (
             <TerminalPane
               sessionId={selectedSessionId}
+              sessionName={sessions.find(s => s.sessionId === selectedSessionId)?.name}
               send={send}
               subscribe={subscribe}
             />

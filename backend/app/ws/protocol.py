@@ -43,6 +43,16 @@ class SessionTerminateMessage(BaseModel):
     sessionId: str = Field(..., min_length=36, max_length=36)
 
 
+class SessionRenameMessage(BaseModel):
+    """Client request to rename a session."""
+
+    model_config = ConfigDict(extra="forbid")
+    
+    type: Literal["session.rename"]
+    sessionId: str = Field(..., min_length=36, max_length=36)
+    name: str = Field(..., min_length=1, max_length=100)
+
+
 class TerminalInputMessage(BaseModel):
     """Client terminal input data."""
 
@@ -71,6 +81,7 @@ ClientMessage = Annotated[
         SessionAttachMessage,
         SessionListMessage,
         SessionTerminateMessage,
+        SessionRenameMessage,
         TerminalInputMessage,
         TerminalResizeMessage,
     ],
@@ -106,6 +117,7 @@ class SessionIndexEntry(BaseModel):
     status: Literal["running", "exited"]
     createdAt: str
     lastActivityAt: str
+    name: str | None = None
 
 
 class ServerHelloMessage(BaseModel):
@@ -144,6 +156,14 @@ class SessionExitedMessage(BaseModel):
     type: Literal["session.exited"] = "session.exited"
     sessionId: str
     exitCode: int | None
+
+
+class SessionRenamedMessage(BaseModel):
+    """Server response to session rename."""
+
+    type: Literal["session.renamed"] = "session.renamed"
+    sessionId: str
+    name: str
 
 
 class TerminalOutputMessage(BaseModel):
@@ -199,6 +219,8 @@ def parse_client_message(data: dict[str, object]) -> ClientMessage:
         return SessionListMessage(**data)  # type: ignore[arg-type]
     elif msg_type == "session.terminate":
         return SessionTerminateMessage(**data)  # type: ignore[arg-type]
+    elif msg_type == "session.rename":
+        return SessionRenameMessage(**data)  # type: ignore[arg-type]
     elif msg_type == "term.in":
         return TerminalInputMessage(**data)  # type: ignore[arg-type]
     elif msg_type == "term.resize":

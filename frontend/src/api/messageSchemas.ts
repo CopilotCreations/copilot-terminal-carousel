@@ -32,6 +32,7 @@ export const SessionIndexEntrySchema = z.object({
   status: SessionStatusSchema,
   createdAt: z.string(),
   lastActivityAt: z.string(),
+  name: z.string().nullable().optional(),
 });
 export type SessionIndexEntry = z.infer<typeof SessionIndexEntrySchema>;
 
@@ -64,6 +65,12 @@ export const SessionExitedMessageSchema = z.object({
   exitCode: z.number().nullable(),
 });
 
+export const SessionRenamedMessageSchema = z.object({
+  type: z.literal('session.renamed'),
+  sessionId: z.string().uuid(),
+  name: z.string(),
+});
+
 export const TerminalOutputMessageSchema = z.object({
   type: z.literal('term.out'),
   sessionId: z.string().uuid(),
@@ -83,6 +90,7 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
   SessionAttachedMessageSchema,
   SessionListResultMessageSchema,
   SessionExitedMessageSchema,
+  SessionRenamedMessageSchema,
   TerminalOutputMessageSchema,
   ErrorMessageSchema,
 ]);
@@ -107,6 +115,12 @@ export interface SessionTerminateMessage {
   sessionId: string;
 }
 
+export interface SessionRenameMessage {
+  type: 'session.rename';
+  sessionId: string;
+  name: string;
+}
+
 export interface TerminalInputMessage {
   type: 'term.in';
   sessionId: string;
@@ -125,6 +139,7 @@ export type ClientMessage =
   | SessionAttachMessage
   | SessionListMessage
   | SessionTerminateMessage
+  | SessionRenameMessage
   | TerminalInputMessage
   | TerminalResizeMessage;
 

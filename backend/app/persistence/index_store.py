@@ -63,6 +63,7 @@ class IndexStore:
         status: str,
         created_at: str,
         last_activity_at: str,
+        name: str | None = None,
     ) -> None:
         """Add a new session to the index.
 
@@ -71,6 +72,7 @@ class IndexStore:
             status: Session status (running/exited)
             created_at: ISO timestamp when session was created
             last_activity_at: ISO timestamp of last activity
+            name: Optional session name
         """
         index = self.load()
         entry = {
@@ -78,6 +80,7 @@ class IndexStore:
             "status": status,
             "createdAt": created_at,
             "lastActivityAt": last_activity_at,
+            "name": name,
         }
         index["sessions"].append(entry)
         self.save(index)
@@ -103,6 +106,28 @@ class IndexStore:
                     session["lastActivityAt"] = last_activity_at
                 break
         self.save(index)
+
+    def update_session_name(
+        self,
+        session_id: str,
+        name: str,
+    ) -> bool:
+        """Update a session's name in the index.
+
+        Args:
+            session_id: Session UUID
+            name: New session name
+
+        Returns:
+            True if session was found and updated, False otherwise
+        """
+        index = self.load()
+        for session in index["sessions"]:
+            if session["sessionId"] == session_id:
+                session["name"] = name
+                self.save(index)
+                return True
+        return False
 
     def get_all_sessions(self) -> list[SessionIndexEntry]:
         """Get all sessions from the index.

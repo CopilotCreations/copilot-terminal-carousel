@@ -11,6 +11,7 @@ from starlette.websockets import WebSocketState
 
 from app.config import settings
 from app.logging_setup import get_logger
+from app.persistence.index_store import index_store
 from app.sessions.manager import session_manager
 from app.util.time import utc_now_iso
 from app.ws.dispatcher import dispatcher
@@ -26,6 +27,8 @@ from app.ws.protocol import (
     SessionExitedMessage,
     SessionListMessage,
     SessionListResultMessage,
+    SessionRenameMessage,
+    SessionRenamedMessage,
     SessionTerminateMessage,
     TerminalInputMessage,
     TerminalOutputMessage,
@@ -291,11 +294,31 @@ async def handle_term_resize(
     return None
 
 
+async def handle_session_rename(
+    client_id: str, message: ClientMessage
+) -> dict[str, Any] | None:
+    """Handle session.rename message."""
+    assert isinstance(message, SessionRenameMessage)
+
+    success = index_store.update_session_name(message.sessionId, message.name)
+
+    if not success:
+        return ErrorMessage(
+            code=ErrorCodes.SESSION_NOT_FOUND,
+            message=f"Session not found: {message.sessionId}",
+        ).model_dump()
+
+    return SessionRenamedMessage(
+        sessionId=message.sessionId, name=message.name
+    ).model_dump()
+
+
 # Register handlers
 dispatcher.register("session.create", handle_session_create)
 dispatcher.register("session.attach", handle_session_attach)
 dispatcher.register("session.list", handle_session_list)
 dispatcher.register("session.terminate", handle_session_terminate)
+dispatcher.register("session.rename", handle_session_rename)
 dispatcher.register("term.in", handle_term_in)
 dispatcher.register("term.resize", handle_term_resize)
 

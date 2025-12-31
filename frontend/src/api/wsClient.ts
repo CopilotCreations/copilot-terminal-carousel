@@ -15,6 +15,7 @@ interface UseWebSocketReturn {
   createSession: () => Promise<void>;
   attachSession: (sessionId: string) => Promise<void>;
   terminateSession: (sessionId: string) => Promise<void>;
+  renameSession: (sessionId: string, name: string) => Promise<void>;
   listSessions: () => void;
 }
 
@@ -168,6 +169,13 @@ export function useWebSocket(): UseWebSocketReturn {
     [send]
   );
 
+  const renameSession = useCallback(
+    async (sessionId: string, name: string) => {
+      send({ type: 'session.rename', sessionId, name });
+    },
+    [send]
+  );
+
   const listSessions = useCallback(() => {
     send({ type: 'session.list' });
   }, [send]);
@@ -180,6 +188,7 @@ export function useWebSocket(): UseWebSocketReturn {
     createSession,
     attachSession,
     terminateSession,
+    renameSession,
     listSessions,
   };
 }

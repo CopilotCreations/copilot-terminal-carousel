@@ -138,6 +138,20 @@ body,
 .session-id {
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 0.85rem;
+  cursor: text;
+}
+
+.session-name-input {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.85rem;
+  background-color: #3c3c3c;
+  border: 1px solid #0e639c;
+  border-radius: 3px;
+  color: #d4d4d4;
+  padding: 2px 6px;
+  width: 100%;
+  max-width: 150px;
+  outline: none;
 }
 
 .session-status {

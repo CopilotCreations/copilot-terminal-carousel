@@ -44,3 +44,4 @@ htmlcov/
 
 # Projects created by the bot
 projects/
+**/node_modules/
