@@ -12,7 +12,11 @@ class TestLoggingSetup:
 
     @pytest.fixture(autouse=True)
     def setup(self, tmp_path: Path) -> None:
-        """Set up test environment."""
+        """Set up test environment.
+
+        Args:
+            tmp_path: Pytest fixture providing a temporary directory unique to the test.
+        """
         os.environ["DATA_DIR"] = str(tmp_path / "data")
         os.environ["LOG_FILE"] = str(tmp_path / "data" / "logs" / "app.jsonl")
         os.environ["LOG_LEVEL"] = "DEBUG"
@@ -20,7 +24,11 @@ class TestLoggingSetup:
         (tmp_path / "data" / "logs").mkdir(parents=True, exist_ok=True)
 
     def test_get_logger(self) -> None:
-        """Test getting a logger."""
+        """Test getting a logger.
+
+        Verifies that get_logger returns a valid Logger instance
+        with the correct module name.
+        """
         logger = get_logger("test.module")
         
         assert logger is not None
@@ -28,7 +36,11 @@ class TestLoggingSetup:
         assert logger.name == "test.module"
 
     def test_custom_json_formatter(self) -> None:
-        """Test CustomJsonFormatter adds required fields."""
+        """Test CustomJsonFormatter adds required fields.
+
+        Verifies that the custom formatter adds 'ts', 'level', and 'event'
+        fields to log records with correct values.
+        """
         formatter = CustomJsonFormatter()
         
         record = logging.LogRecord(

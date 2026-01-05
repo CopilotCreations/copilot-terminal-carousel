@@ -13,7 +13,11 @@ class TestWebSocketConnection:
 
     @pytest.fixture(autouse=True)
     def setup(self, tmp_path: Path) -> None:
-        """Set up test environment."""
+        """Set up test environment.
+
+        Args:
+            tmp_path: Pytest fixture providing a temporary directory path.
+        """
         os.environ["DATA_DIR"] = str(tmp_path / "data")
         os.environ["LOG_FILE"] = str(tmp_path / "data" / "logs" / "app.jsonl")
         os.environ["ALLOW_NON_LOCALHOST"] = "true"
@@ -26,7 +30,11 @@ class TestWebSocketConnection:
         session_manager._sessions.clear()
 
     def test_websocket_connect_receives_hello(self) -> None:
-        """Test that WebSocket connection receives server.hello."""
+        """Test that WebSocket connection receives server.hello.
+
+        Verifies that upon connecting, the server sends a hello message
+        containing serverTime and protocolVersion.
+        """
         client = TestClient(app)
 
         with client.websocket_connect("/ws") as websocket:
@@ -37,7 +45,11 @@ class TestWebSocketConnection:
             assert message["protocolVersion"] == 1
 
     def test_websocket_session_list(self) -> None:
-        """Test session.list message."""
+        """Test session.list message.
+
+        Verifies that sending a session.list message returns a
+        session.list.result with a list of sessions.
+        """
         client = TestClient(app)
 
         with client.websocket_connect("/ws") as websocket:
@@ -53,7 +65,12 @@ class TestWebSocketConnection:
             assert isinstance(response["sessions"], list)
 
     def test_websocket_create_session(self) -> None:
-        """Test session.create message."""
+        """Test session.create message.
+
+        Verifies that sending a session.create message returns a
+        session.created response with session details including
+        sessionId, status, and workspacePath.
+        """
         client = TestClient(app)
 
         with client.websocket_connect("/ws") as websocket:
@@ -75,7 +92,12 @@ class TestWebSocketConnection:
             assert "workspacePath" in response["session"]
 
     def test_websocket_attach_session(self) -> None:
-        """Test session.attach message."""
+        """Test session.attach message.
+
+        Creates a session, then verifies that a new connection can
+        attach to it and receive a session.attached response with
+        the correct sessionId and status.
+        """
         client = TestClient(app)
 
         with client.websocket_connect("/ws") as websocket:
@@ -109,7 +131,11 @@ class TestWebSocketConnection:
                 assert attach_response["status"] == "running"
 
     def test_websocket_terminate_session(self) -> None:
-        """Test session.terminate message."""
+        """Test session.terminate message.
+
+        Creates a session, terminates it, and verifies that a
+        session.exited response is received with the correct sessionId.
+        """
         client = TestClient(app)
 
         with client.websocket_connect("/ws") as websocket:
@@ -141,7 +167,11 @@ class TestWebSocketConnection:
             assert terminate_response["sessionId"] == session_id
 
     def test_websocket_attach_nonexistent_session(self) -> None:
-        """Test attaching to non-existent session returns error."""
+        """Test attaching to non-existent session returns error.
+
+        Verifies that attempting to attach to a non-existent session
+        returns an error with code SESSION_NOT_FOUND.
+        """
         client = TestClient(app)
 
         with client.websocket_connect("/ws") as websocket:
@@ -158,7 +188,11 @@ class TestWebSocketConnection:
             assert response["code"] == "SESSION_NOT_FOUND"
 
     def test_websocket_invalid_message(self) -> None:
-        """Test invalid message returns error."""
+        """Test invalid message returns error.
+
+        Verifies that sending an unknown message type returns an
+        error with code UNKNOWN_MESSAGE_TYPE.
+        """
         client = TestClient(app)
 
         with client.websocket_connect("/ws") as websocket:
@@ -176,7 +210,11 @@ class TestTerminalInput:
 
     @pytest.fixture(autouse=True)
     def setup(self, tmp_path: Path) -> None:
-        """Set up test environment."""
+        """Set up test environment.
+
+        Args:
+            tmp_path: Pytest fixture providing a temporary directory path.
+        """
         os.environ["DATA_DIR"] = str(tmp_path / "data")
         os.environ["LOG_FILE"] = str(tmp_path / "data" / "logs" / "app.jsonl")
         os.environ["ALLOW_NON_LOCALHOST"] = "true"
@@ -188,7 +226,12 @@ class TestTerminalInput:
         session_manager._sessions.clear()
 
     def test_term_in_requires_attach(self) -> None:
-        """Test that term.in requires being attached to session."""
+        """Test that term.in requires being attached to session.
+
+        Creates a session, then opens a new connection without attaching
+        and verifies that sending term.in returns an error with code
+        NOT_ATTACHED.
+        """
         client = TestClient(app)
 
         with client.websocket_connect("/ws") as websocket:
@@ -220,7 +263,12 @@ class TestTerminalResize:
 
     @pytest.fixture(autouse=True)
     def setup(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Set up test environment."""
+        """Set up test environment.
+
+        Args:
+            tmp_path: Pytest fixture providing a temporary directory path.
+            monkeypatch: Pytest fixture for modifying settings.
+        """
         from app.config import settings
         
         os.environ["DATA_DIR"] = str(tmp_path / "data")
@@ -239,7 +287,11 @@ class TestTerminalResize:
         session_manager._sessions.clear()
 
     def test_resize_invalid_cols(self) -> None:
-        """Test that invalid column resize returns error."""
+        """Test that invalid column resize returns error.
+
+        Creates a session and attempts to resize with columns below
+        MIN_COLS, verifying that an INVALID_RESIZE error is returned.
+        """
         client = TestClient(app)
 
         with client.websocket_connect("/ws") as websocket:
@@ -271,7 +323,11 @@ class TestTerminalResize:
             assert resize_response["code"] == "INVALID_RESIZE"
 
     def test_resize_invalid_rows(self) -> None:
-        """Test that invalid row resize returns error."""
+        """Test that invalid row resize returns error.
+
+        Creates a session and attempts to resize with rows above
+        MAX_ROWS, verifying that an INVALID_RESIZE error is returned.
+        """
         client = TestClient(app)
 
         with client.websocket_connect("/ws") as websocket:

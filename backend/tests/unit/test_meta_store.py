@@ -10,16 +10,32 @@ class TestMetaStore:
 
     @pytest.fixture
     def meta_store(self, tmp_path: Path) -> MetaStore:
-        """Create a MetaStore with a temp path."""
+        """Create a MetaStore with a temp path.
+
+        Args:
+            tmp_path: Pytest fixture providing a temporary directory path.
+
+        Returns:
+            A MetaStore instance configured with a temporary sessions directory.
+        """
         return MetaStore(base_path=tmp_path / "sessions")
 
     @pytest.fixture
     def session_id(self) -> str:
-        """Provide a test session ID."""
+        """Provide a test session ID.
+
+        Returns:
+            A valid UUID string for use as a session identifier in tests.
+        """
         return "12345678-1234-1234-1234-123456789abc"
 
     def test_create_meta(self, meta_store: MetaStore, session_id: str) -> None:
-        """Test creating session metadata."""
+        """Test creating session metadata.
+
+        Args:
+            meta_store: The MetaStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         meta = meta_store.create(
             session_id=session_id,
             workspace_path="C:\\test\\workspace",
@@ -39,7 +55,12 @@ class TestMetaStore:
     def test_create_meta_with_error(
         self, meta_store: MetaStore, session_id: str
     ) -> None:
-        """Test creating session metadata with spawn error."""
+        """Test creating session metadata with spawn error.
+
+        Args:
+            meta_store: The MetaStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         meta = meta_store.create(
             session_id=session_id,
             workspace_path="C:\\test\\workspace",
@@ -56,7 +77,12 @@ class TestMetaStore:
         assert meta.error["code"] == "SPAWN_FAILED"
 
     def test_load_meta(self, meta_store: MetaStore, session_id: str) -> None:
-        """Test loading session metadata."""
+        """Test loading session metadata.
+
+        Args:
+            meta_store: The MetaStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         meta_store.create(
             session_id=session_id,
             workspace_path="C:\\test\\workspace",
@@ -72,12 +98,21 @@ class TestMetaStore:
         assert loaded.pid == 12345
 
     def test_load_meta_not_found(self, meta_store: MetaStore) -> None:
-        """Test loading non-existent metadata returns None."""
+        """Test loading non-existent metadata returns None.
+
+        Args:
+            meta_store: The MetaStore fixture instance.
+        """
         loaded = meta_store.load("nonexistent-id-1234567890123456")
         assert loaded is None
 
     def test_update_activity(self, meta_store: MetaStore, session_id: str) -> None:
-        """Test updating last activity timestamp."""
+        """Test updating last activity timestamp.
+
+        Args:
+            meta_store: The MetaStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         meta = meta_store.create(
             session_id=session_id,
             workspace_path="C:\\test\\workspace",
@@ -98,7 +133,12 @@ class TestMetaStore:
         assert loaded.lastActivityAt >= original_activity
 
     def test_update_status(self, meta_store: MetaStore, session_id: str) -> None:
-        """Test updating session status."""
+        """Test updating session status.
+
+        Args:
+            meta_store: The MetaStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         meta_store.create(
             session_id=session_id,
             workspace_path="C:\\test\\workspace",
@@ -116,7 +156,12 @@ class TestMetaStore:
         assert loaded.exitCode == 0
 
     def test_update_dimensions(self, meta_store: MetaStore, session_id: str) -> None:
-        """Test updating terminal dimensions."""
+        """Test updating terminal dimensions.
+
+        Args:
+            meta_store: The MetaStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         meta_store.create(
             session_id=session_id,
             workspace_path="C:\\test\\workspace",

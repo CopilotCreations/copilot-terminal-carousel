@@ -10,7 +10,15 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "backend"))
 
 
 def kill_copilot_processes() -> None:
-    """Kill all copilot.exe child processes spawned by this application."""
+    """Kill all copilot.exe child processes spawned by this application.
+
+    Finds all child processes of the current process that have "copilot" in
+    their name and terminates them. First attempts graceful termination,
+    then force kills any processes that don't exit within 2 seconds.
+
+    Returns:
+        None
+    """
     try:
         import psutil
     except ImportError:
@@ -44,7 +52,15 @@ def kill_copilot_processes() -> None:
 
 
 def signal_handler(signum: int, frame: object) -> None:
-    """Handle termination signals by cleaning up child processes."""
+    """Handle termination signals by cleaning up child processes.
+
+    Args:
+        signum: The signal number that was received.
+        frame: The current stack frame at the point the signal was received.
+
+    Returns:
+        None
+    """
     kill_copilot_processes()
     sys.exit(0)
 

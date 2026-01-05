@@ -11,18 +11,34 @@ class TestTranscriptStore:
 
     @pytest.fixture
     def transcript_store(self, tmp_path: Path) -> TranscriptStore:
-        """Create a TranscriptStore with a temp path."""
+        """Create a TranscriptStore with a temp path.
+
+        Args:
+            tmp_path: Pytest fixture providing a temporary directory path.
+
+        Returns:
+            A TranscriptStore instance configured with a temporary sessions path.
+        """
         return TranscriptStore(base_path=tmp_path / "sessions")
 
     @pytest.fixture
     def session_id(self) -> str:
-        """Provide a test session ID."""
+        """Provide a test session ID.
+
+        Returns:
+            A UUID-formatted string for use as a test session identifier.
+        """
         return "12345678-1234-1234-1234-123456789abc"
 
     def test_init_session(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test initializing a session creates the transcript file."""
+        """Test initializing a session creates the transcript file.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         transcript_path = transcript_store._get_transcript_path(session_id)
         assert transcript_path.exists()
@@ -30,7 +46,12 @@ class TestTranscriptStore:
     def test_append_output_sync(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test appending output event synchronously."""
+        """Test appending output event synchronously.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         transcript_store.append_output_sync(session_id, "Hello, world!")
 
@@ -43,7 +64,12 @@ class TestTranscriptStore:
     def test_append_input_sync(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test appending input event synchronously."""
+        """Test appending input event synchronously.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         transcript_store.append_input_sync(session_id, "user input\r\n")
 
@@ -55,7 +81,12 @@ class TestTranscriptStore:
     def test_append_lifecycle_sync(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test appending lifecycle event synchronously."""
+        """Test appending lifecycle event synchronously.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         transcript_store.append_lifecycle_sync(
             session_id, "created", {"pid": 12345}
@@ -71,7 +102,12 @@ class TestTranscriptStore:
     async def test_append_output_async(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test appending output event asynchronously."""
+        """Test appending output event asynchronously.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         await transcript_store.append_output(session_id, "async output")
 
@@ -84,7 +120,12 @@ class TestTranscriptStore:
     async def test_append_input_async(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test appending input event asynchronously."""
+        """Test appending input event asynchronously.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         await transcript_store.append_input(session_id, "async input")
 
@@ -96,7 +137,12 @@ class TestTranscriptStore:
     async def test_append_resize(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test appending resize event."""
+        """Test appending resize event.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         await transcript_store.append_resize(session_id, 100, 50)
 
@@ -110,7 +156,12 @@ class TestTranscriptStore:
     async def test_append_lifecycle_async(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test appending lifecycle event asynchronously."""
+        """Test appending lifecycle event asynchronously.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         await transcript_store.append_lifecycle(
             session_id, "exited", {"exitCode": 0}
@@ -124,7 +175,12 @@ class TestTranscriptStore:
     def test_seq_increments(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test that sequence numbers increment correctly."""
+        """Test that sequence numbers increment correctly.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         transcript_store.append_output_sync(session_id, "output 1")
         transcript_store.append_input_sync(session_id, "input 1")
@@ -139,7 +195,12 @@ class TestTranscriptStore:
     def test_jsonl_format(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test that each line is valid JSON."""
+        """Test that each line is valid JSON.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         transcript_store.append_output_sync(session_id, "line 1")
         transcript_store.append_output_sync(session_id, "line 2")
@@ -160,7 +221,12 @@ class TestTranscriptStore:
     def test_read_all_events_empty_file(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test reading from an empty transcript file."""
+        """Test reading from an empty transcript file.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         events = transcript_store.read_all_events(session_id)
         assert events == []
@@ -168,14 +234,23 @@ class TestTranscriptStore:
     def test_read_all_events_nonexistent(
         self, transcript_store: TranscriptStore
     ) -> None:
-        """Test reading from a non-existent transcript returns empty list."""
+        """Test reading from a non-existent transcript returns empty list.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+        """
         events = transcript_store.read_all_events("nonexistent-session-id-1234")
         assert events == []
 
     def test_event_has_timestamp(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test that events have proper timestamps."""
+        """Test that events have proper timestamps.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         transcript_store.append_output_sync(session_id, "test")
 
@@ -189,7 +264,12 @@ class TestTranscriptStore:
     def test_event_has_session_id(
         self, transcript_store: TranscriptStore, session_id: str
     ) -> None:
-        """Test that events include the session ID."""
+        """Test that events include the session ID.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+            session_id: The test session ID fixture.
+        """
         transcript_store.init_session(session_id)
         transcript_store.append_output_sync(session_id, "test")
 
@@ -199,7 +279,11 @@ class TestTranscriptStore:
     def test_multiple_sessions_independent(
         self, transcript_store: TranscriptStore
     ) -> None:
-        """Test that multiple sessions have independent sequence counters."""
+        """Test that multiple sessions have independent sequence counters.
+
+        Args:
+            transcript_store: The TranscriptStore fixture instance.
+        """
         session1 = "session1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
         session2 = "session2-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
 

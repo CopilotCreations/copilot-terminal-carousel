@@ -230,6 +230,11 @@ def parse_client_message(data: dict[str, object]) -> ClientMessage:
 
 
 def utc_now_iso() -> str:
-    """Get current UTC time as ISO-8601 string."""
+    """Get current UTC time as ISO-8601 string.
+
+    Returns:
+        str: Current UTC timestamp in ISO-8601 format with millisecond
+            precision (e.g., '2026-01-05T02:04:52.557Z').
+    """
     from datetime import datetime, timezone
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"

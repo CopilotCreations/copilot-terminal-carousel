@@ -162,7 +162,14 @@ _connections: dict[str, WebSocketConnection] = {}
 
 
 def get_connection(client_id: str) -> WebSocketConnection | None:
-    """Get a connection by client ID."""
+    """Get a connection by client ID.
+
+    Args:
+        client_id: Unique client identifier.
+
+    Returns:
+        The WebSocketConnection if found, None otherwise.
+    """
     return _connections.get(client_id)
 
 
@@ -174,7 +181,17 @@ def get_connection(client_id: str) -> WebSocketConnection | None:
 async def handle_session_create(
     client_id: str, message: ClientMessage
 ) -> dict[str, Any] | None:
-    """Handle session.create message."""
+    """Handle session.create message.
+
+    Creates a new terminal session and attaches the client to it.
+
+    Args:
+        client_id: Unique client identifier.
+        message: The client message (SessionCreateMessage).
+
+    Returns:
+        SessionCreatedMessage on success, ErrorMessage on failure.
+    """
     session, error_code, error_msg = await session_manager.create_session()
 
     if error_code:
@@ -199,7 +216,17 @@ async def handle_session_create(
 async def handle_session_attach(
     client_id: str, message: ClientMessage
 ) -> dict[str, Any] | None:
-    """Handle session.attach message."""
+    """Handle session.attach message.
+
+    Attaches the client to an existing terminal session.
+
+    Args:
+        client_id: Unique client identifier.
+        message: The client message (SessionAttachMessage).
+
+    Returns:
+        SessionAttachedMessage on success, ErrorMessage on failure.
+    """
     assert isinstance(message, SessionAttachMessage)
 
     session, error_code, error_msg = await session_manager.attach_session(
@@ -229,7 +256,17 @@ async def handle_session_attach(
 async def handle_session_list(
     client_id: str, message: ClientMessage
 ) -> dict[str, Any] | None:
-    """Handle session.list message."""
+    """Handle session.list message.
+
+    Returns a list of all available terminal sessions.
+
+    Args:
+        client_id: Unique client identifier.
+        message: The client message (SessionListMessage).
+
+    Returns:
+        SessionListResultMessage containing the list of sessions.
+    """
     sessions = session_manager.list_sessions()
     return SessionListResultMessage(sessions=sessions).model_dump()
 
@@ -237,7 +274,17 @@ async def handle_session_list(
 async def handle_session_terminate(
     client_id: str, message: ClientMessage
 ) -> dict[str, Any] | None:
-    """Handle session.terminate message."""
+    """Handle session.terminate message.
+
+    Terminates the specified terminal session.
+
+    Args:
+        client_id: Unique client identifier.
+        message: The client message (SessionTerminateMessage).
+
+    Returns:
+        SessionExitedMessage on success, ErrorMessage on failure.
+    """
     assert isinstance(message, SessionTerminateMessage)
 
     exit_code, error_code, error_msg = await session_manager.terminate_session(
@@ -255,7 +302,17 @@ async def handle_session_terminate(
 async def handle_term_in(
     client_id: str, message: ClientMessage
 ) -> dict[str, Any] | None:
-    """Handle term.in message."""
+    """Handle term.in message.
+
+    Sends input data to the attached terminal session.
+
+    Args:
+        client_id: Unique client identifier.
+        message: The client message (TerminalInputMessage).
+
+    Returns:
+        None on success, ErrorMessage on failure.
+    """
     assert isinstance(message, TerminalInputMessage)
 
     # Check if client is attached to this session
@@ -280,7 +337,17 @@ async def handle_term_in(
 async def handle_term_resize(
     client_id: str, message: ClientMessage
 ) -> dict[str, Any] | None:
-    """Handle term.resize message."""
+    """Handle term.resize message.
+
+    Resizes the terminal to the specified dimensions.
+
+    Args:
+        client_id: Unique client identifier.
+        message: The client message (TerminalResizeMessage).
+
+    Returns:
+        None on success, ErrorMessage on failure.
+    """
     assert isinstance(message, TerminalResizeMessage)
 
     success, error_code, error_msg = session_manager.resize_session(
@@ -297,7 +364,17 @@ async def handle_term_resize(
 async def handle_session_rename(
     client_id: str, message: ClientMessage
 ) -> dict[str, Any] | None:
-    """Handle session.rename message."""
+    """Handle session.rename message.
+
+    Renames the specified session.
+
+    Args:
+        client_id: Unique client identifier.
+        message: The client message (SessionRenameMessage).
+
+    Returns:
+        SessionRenamedMessage on success, ErrorMessage on failure.
+    """
     assert isinstance(message, SessionRenameMessage)
 
     success = index_store.update_session_name(message.sessionId, message.name)
@@ -325,7 +402,17 @@ dispatcher.register("term.resize", handle_term_resize)
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket) -> None:
-    """WebSocket endpoint for terminal communication."""
+    """WebSocket endpoint for terminal communication.
+
+    Handles WebSocket connections for terminal sessions. Verifies localhost
+    connection, manages rate limiting, and dispatches messages to handlers.
+
+    Args:
+        websocket: The FastAPI WebSocket connection.
+
+    Returns:
+        None. Runs until the connection is closed.
+    """
     # Verify localhost connection
     client_host = websocket.client.host if websocket.client else None
     if client_host != "127.0.0.1" and not settings.ALLOW_NON_LOCALHOST:

@@ -17,7 +17,18 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         record: logging.LogRecord,
         message_dict: dict[str, object],
     ) -> None:
-        """Add custom fields to the log record."""
+        """Add custom fields to the log record.
+
+        Adds timestamp, level, event name, and exception info to each log entry.
+
+        Args:
+            log_record: The dictionary that will be serialized to JSON.
+            record: The original logging.LogRecord object.
+            message_dict: Dictionary of message-specific fields.
+
+        Returns:
+            None
+        """
         super().add_fields(log_record, record, message_dict)
         # Use ISO format with milliseconds (strftime doesn't support %f)
         from datetime import datetime, timezone
@@ -30,7 +41,17 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
 
 
 def setup_logging() -> None:
-    """Configure JSON logging to file and console."""
+    """Configure JSON logging to file and console.
+
+    Sets up a file handler with JSON formatting and a console handler with
+    human-readable formatting. Creates the log directory if it doesn't exist.
+
+    Returns:
+        None
+
+    Raises:
+        OSError: If the log directory cannot be created.
+    """
     # Ensure log directory exists
     log_dir = settings.LOG_FILE.parent
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -64,5 +85,12 @@ def setup_logging() -> None:
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Get a logger with the given name."""
+    """Get a logger with the given name.
+
+    Args:
+        name: The name for the logger, typically the module's __name__.
+
+    Returns:
+        A logging.Logger instance configured with the application's settings.
+    """
     return logging.getLogger(name)

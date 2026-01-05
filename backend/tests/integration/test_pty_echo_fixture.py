@@ -10,18 +10,34 @@ class TestMockPtyProcess:
 
     @pytest.fixture
     def session_id(self) -> str:
-        """Provide a test session ID."""
+        """Provide a test session ID.
+
+        Returns:
+            str: A valid UUID string for testing.
+        """
         return "12345678-1234-1234-1234-123456789abc"
 
     @pytest.fixture
     def workspace(self, tmp_path: Path) -> Path:
-        """Create a workspace directory."""
+        """Create a workspace directory.
+
+        Args:
+            tmp_path: Pytest's temporary path fixture.
+
+        Returns:
+            Path: The created workspace directory path.
+        """
         workspace = tmp_path / "workspace"
         workspace.mkdir()
         return workspace
 
     def test_mock_pty_spawn(self, session_id: str, workspace: Path) -> None:
-        """Test mock PTY spawning."""
+        """Test mock PTY spawning.
+
+        Args:
+            session_id: The test session ID fixture.
+            workspace: The test workspace directory fixture.
+        """
         pty = MockPtyProcess(
             session_id=session_id,
             workspace_path=workspace,
@@ -37,7 +53,12 @@ class TestMockPtyProcess:
         assert pty.is_running
 
     def test_mock_pty_terminate(self, session_id: str, workspace: Path) -> None:
-        """Test mock PTY termination."""
+        """Test mock PTY termination.
+
+        Args:
+            session_id: The test session ID fixture.
+            workspace: The test workspace directory fixture.
+        """
         pty = MockPtyProcess(
             session_id=session_id,
             workspace_path=workspace,
@@ -51,7 +72,12 @@ class TestMockPtyProcess:
         assert not pty.is_running
 
     def test_mock_pty_resize(self, session_id: str, workspace: Path) -> None:
-        """Test mock PTY resize."""
+        """Test mock PTY resize.
+
+        Args:
+            session_id: The test session ID fixture.
+            workspace: The test workspace directory fixture.
+        """
         pty = MockPtyProcess(
             session_id=session_id,
             workspace_path=workspace,
@@ -67,7 +93,12 @@ class TestMockPtyProcess:
         assert pty.rows == 50
 
     def test_mock_pty_write(self, session_id: str, workspace: Path) -> None:
-        """Test mock PTY write buffers input."""
+        """Test mock PTY write buffers input.
+
+        Args:
+            session_id: The test session ID fixture.
+            workspace: The test workspace directory fixture.
+        """
         pty = MockPtyProcess(
             session_id=session_id,
             workspace_path=workspace,
@@ -85,12 +116,23 @@ class TestMockPtyProcess:
     async def test_mock_pty_output_callback(
         self, session_id: str, workspace: Path
     ) -> None:
-        """Test mock PTY calls output callback."""
+        """Test mock PTY calls output callback.
+
+        Args:
+            session_id: The test session ID fixture.
+            workspace: The test workspace directory fixture.
+        """
         import asyncio
 
         outputs: list[tuple[str, str]] = []
 
         async def on_output(sid: str, data: str) -> None:
+            """Callback to capture PTY output.
+
+            Args:
+                sid: The session ID.
+                data: The output data string.
+            """
             outputs.append((sid, data))
 
         pty = MockPtyProcess(
@@ -118,18 +160,34 @@ class TestPtyProcessFactory:
 
     @pytest.fixture
     def session_id(self) -> str:
-        """Provide a test session ID."""
+        """Provide a test session ID.
+
+        Returns:
+            str: A valid UUID string for testing.
+        """
         return "12345678-1234-1234-1234-123456789abc"
 
     @pytest.fixture
     def workspace(self, tmp_path: Path) -> Path:
-        """Create a workspace directory."""
+        """Create a workspace directory.
+
+        Args:
+            tmp_path: Pytest's temporary path fixture.
+
+        Returns:
+            Path: The created workspace directory path.
+        """
         workspace = tmp_path / "workspace"
         workspace.mkdir()
         return workspace
 
     def test_create_mock_pty(self, session_id: str, workspace: Path) -> None:
-        """Test creating mock PTY."""
+        """Test creating mock PTY.
+
+        Args:
+            session_id: The test session ID fixture.
+            workspace: The test workspace directory fixture.
+        """
         pty = create_pty_process(
             session_id=session_id,
             workspace_path=workspace,
@@ -143,7 +201,12 @@ class TestPtyProcessFactory:
     def test_create_pty_defaults_to_mock_when_unavailable(
         self, session_id: str, workspace: Path
     ) -> None:
-        """Test that factory creates mock when pywinpty is unavailable."""
+        """Test that factory creates mock when pywinpty is unavailable.
+
+        Args:
+            session_id: The test session ID fixture.
+            workspace: The test workspace directory fixture.
+        """
         # Since pywinpty may or may not be available, this test
         # verifies the factory works in either case
         pty = create_pty_process(

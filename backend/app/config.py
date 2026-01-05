@@ -52,29 +52,56 @@ class Settings(BaseSettings):
     @field_validator("DATA_DIR", "LOG_FILE", mode="before")
     @classmethod
     def convert_to_path(cls, v: str | Path) -> Path:
-        """Convert string paths to Path objects."""
+        """Convert string paths to Path objects.
+
+        Args:
+            v: The value to convert, either a string or Path object.
+
+        Returns:
+            A Path object representing the given path.
+        """
         return Path(v) if isinstance(v, str) else v
 
     @property
     def sessions_dir(self) -> Path:
-        """Get the sessions directory path."""
+        """Get the sessions directory path.
+
+        Returns:
+            Path to the sessions directory within DATA_DIR.
+        """
         return self.DATA_DIR / "sessions"
 
     @property
     def logs_dir(self) -> Path:
-        """Get the logs directory path."""
+        """Get the logs directory path.
+
+        Returns:
+            Path to the logs directory within DATA_DIR.
+        """
         return self.DATA_DIR / "logs"
 
     def get_sessions_dir(self) -> Path:
-        """Get sessions directory (for testing compatibility)."""
+        """Get sessions directory (for testing compatibility).
+
+        Returns:
+            Path to the sessions directory.
+        """
         return self.sessions_dir
 
     def get_logs_dir(self) -> Path:
-        """Get logs directory (for testing compatibility)."""
+        """Get logs directory (for testing compatibility).
+
+        Returns:
+            Path to the logs directory.
+        """
         return self.logs_dir
 
     def validate_localhost_binding(self) -> None:
-        """Validate that the server is bound to localhost unless explicitly allowed."""
+        """Validate that the server is bound to localhost unless explicitly allowed.
+
+        Raises:
+            ValueError: If HOST is not 127.0.0.1 and ALLOW_NON_LOCALHOST is False.
+        """
         if self.HOST != "127.0.0.1" and not self.ALLOW_NON_LOCALHOST:
             raise ValueError(
                 f"Server must bind to 127.0.0.1 unless ALLOW_NON_LOCALHOST=true. "

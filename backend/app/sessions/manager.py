@@ -40,11 +40,20 @@ class Session:
 
     @property
     def is_running(self) -> bool:
-        """Check if session is running."""
+        """Check if session is running.
+
+        Returns:
+            bool: True if the PTY process is running, False otherwise.
+        """
         return self.pty.is_running
 
     def to_session_info(self) -> SessionInfo:
-        """Convert to SessionInfo for API responses."""
+        """Convert session to SessionInfo for API responses.
+
+        Returns:
+            SessionInfo: A data transfer object containing session details
+                including status, timestamps, workspace path, and process info.
+        """
         return SessionInfo(
             sessionId=self.session_id,
             status="running" if self.is_running else "exited",
@@ -77,7 +86,11 @@ class SessionManager:
 
     @property
     def running_session_count(self) -> int:
-        """Get count of running sessions."""
+        """Get count of currently running sessions.
+
+        Returns:
+            int: Number of sessions with active PTY processes.
+        """
         return sum(1 for s in self._sessions.values() if s.is_running)
 
     def set_output_callback(
@@ -85,9 +98,13 @@ class SessionManager:
     ) -> None:
         """Set output callback for a client.
 
+        Registers a callback function that will be invoked when terminal
+        output is received from any session the client is attached to.
+
         Args:
-            client_id: Client identifier
-            callback: Callback function (session_id, data)
+            client_id: Unique identifier for the WebSocket client.
+            callback: Callback function that receives (session_id, data)
+                where session_id is the UUID and data is the terminal output.
         """
         self._output_callbacks[client_id] = callback
 
@@ -96,27 +113,36 @@ class SessionManager:
     ) -> None:
         """Set exit callback for a client.
 
+        Registers a callback function that will be invoked when a session's
+        PTY process exits.
+
         Args:
-            client_id: Client identifier
-            callback: Callback function (session_id, exit_code)
+            client_id: Unique identifier for the WebSocket client.
+            callback: Callback function that receives (session_id, exit_code)
+                where exit_code may be None if the process was killed.
         """
         self._exit_callbacks[client_id] = callback
 
     def remove_client_callbacks(self, client_id: str) -> None:
-        """Remove callbacks for a client.
+        """Remove all callbacks for a client.
+
+        Cleans up both output and exit callbacks when a client disconnects.
 
         Args:
-            client_id: Client identifier
+            client_id: Unique identifier for the WebSocket client to remove.
         """
         self._output_callbacks.pop(client_id, None)
         self._exit_callbacks.pop(client_id, None)
 
     async def _on_pty_output(self, session_id: str, data: str) -> None:
-        """Handle PTY output.
+        """Handle PTY output from a terminal session.
+
+        Appends output to the transcript, updates activity timestamp, and
+        notifies all attached clients via their registered callbacks.
 
         Args:
-            session_id: Session UUID
-            data: Output data
+            session_id: UUID of the session that produced output.
+            data: Raw terminal output data string.
         """
         session = self._sessions.get(session_id)
         if not session:
@@ -140,11 +166,14 @@ class SessionManager:
                     logger.error(f"Output callback error: {e}")
 
     async def _on_pty_exit(self, session_id: str, exit_code: int | None) -> None:
-        """Handle PTY exit.
+        """Handle PTY process exit.
+
+        Updates session status in persistence stores, logs the exit event,
+        and notifies all attached clients via their registered callbacks.
 
         Args:
-            session_id: Session UUID
-            exit_code: Exit code or None
+            session_id: UUID of the session whose process exited.
+            exit_code: Process exit code, or None if terminated abnormally.
         """
         session = self._sessions.get(session_id)
         if not session:
@@ -172,13 +201,20 @@ class SessionManager:
         self,
         copilot_path: str | None = None,
     ) -> tuple[Session | None, str | None, str | None]:
-        """Create a new session.
+        """Create a new terminal session.
+
+        Creates a new PTY process, initializes the workspace directory,
+        sets up transcript storage, and starts the copilot executable.
 
         Args:
-            copilot_path: Optional path to copilot executable
+            copilot_path: Optional path to copilot executable. If None,
+                uses the default path from settings.
 
         Returns:
-            Tuple of (session, error_code, error_message)
+            tuple[Session | None, str | None, str | None]: A tuple containing:
+                - Session object if successful, None on failure.
+                - Error code string if failed, None on success.
+                - Error message string if failed, None on success.
         """
         async with self._lock:
             # Check max sessions
@@ -289,10 +325,10 @@ class SessionManager:
         """Get a session by ID.
 
         Args:
-            session_id: Session UUID
+            session_id: UUID of the session to retrieve.
 
         Returns:
-            Session or None if not found
+            Session | None: The session object if found, None otherwise.
         """
         return self._sessions.get(session_id)
 
@@ -301,12 +337,18 @@ class SessionManager:
     ) -> tuple[Session | None, str | None, str | None]:
         """Attach a client to a session.
 
+        Associates a WebSocket client with a session so it receives
+        output and exit notifications. Logs the attachment event.
+
         Args:
-            session_id: Session UUID
-            client_id: Client identifier
+            session_id: UUID of the session to attach to.
+            client_id: Unique identifier for the WebSocket client.
 
         Returns:
-            Tuple of (session, error_code, error_message)
+            tuple[Session | None, str | None, str | None]: A tuple containing:
+                - Session object if successful, None on failure.
+                - Error code string if failed, None on success.
+                - Error message string if failed, None on success.
         """
         session = self._sessions.get(session_id)
 
@@ -345,9 +387,12 @@ class SessionManager:
     def detach_session(self, session_id: str, client_id: str) -> None:
         """Detach a client from a session.
 
+        Removes the client from the session's attached clients set so it
+        no longer receives output or exit notifications from that session.
+
         Args:
-            session_id: Session UUID
-            client_id: Client identifier
+            session_id: UUID of the session to detach from.
+            client_id: Unique identifier for the WebSocket client.
         """
         session = self._sessions.get(session_id)
         if session:
@@ -356,8 +401,11 @@ class SessionManager:
     def detach_all_sessions(self, client_id: str) -> None:
         """Detach a client from all sessions.
 
+        Removes the client from all sessions' attached clients sets.
+        Typically called when a WebSocket client disconnects.
+
         Args:
-            client_id: Client identifier
+            client_id: Unique identifier for the WebSocket client.
         """
         for session in self._sessions.values():
             session.attached_clients.discard(client_id)
@@ -367,11 +415,17 @@ class SessionManager:
     ) -> tuple[int | None, str | None, str | None]:
         """Terminate a session.
 
+        Stops the PTY process, updates persistence stores with the final
+        status, and logs the termination event.
+
         Args:
-            session_id: Session UUID
+            session_id: UUID of the session to terminate.
 
         Returns:
-            Tuple of (exit_code, error_code, error_message)
+            tuple[int | None, str | None, str | None]: A tuple containing:
+                - Exit code of the terminated process, or None.
+                - Error code string if failed, None on success.
+                - Error message string if failed, None on success.
         """
         session = self._sessions.get(session_id)
 
@@ -401,14 +455,20 @@ class SessionManager:
     def send_input(
         self, session_id: str, data: str
     ) -> tuple[bool, str | None, str | None]:
-        """Send input to a session.
+        """Send input to a session's terminal.
+
+        Validates input size, writes data to the PTY, logs the input
+        to the transcript, and updates the activity timestamp.
 
         Args:
-            session_id: Session UUID
-            data: Input data
+            session_id: UUID of the session to send input to.
+            data: Input string to write to the terminal.
 
         Returns:
-            Tuple of (success, error_code, error_message)
+            tuple[bool, str | None, str | None]: A tuple containing:
+                - True if input was sent successfully, False otherwise.
+                - Error code string if failed, None on success.
+                - Error message string if failed, None on success.
         """
         # Validate input size
         if len(data) > settings.MAX_INPUT_CHARS_PER_MESSAGE:
@@ -439,15 +499,21 @@ class SessionManager:
     def resize_session(
         self, session_id: str, cols: int, rows: int
     ) -> tuple[bool, str | None, str | None]:
-        """Resize a session terminal.
+        """Resize a session's terminal dimensions.
+
+        Validates the new dimensions against configured bounds, resizes
+        the PTY, and updates the dimensions in persistence.
 
         Args:
-            session_id: Session UUID
-            cols: New column count
-            rows: New row count
+            session_id: UUID of the session to resize.
+            cols: New column count (must be within MIN_COLS to MAX_COLS).
+            rows: New row count (must be within MIN_ROWS to MAX_ROWS).
 
         Returns:
-            Tuple of (success, error_code, error_message)
+            tuple[bool, str | None, str | None]: A tuple containing:
+                - True if resize was successful, False otherwise.
+                - Error code string if failed, None on success.
+                - Error message string if failed, None on success.
         """
         # Validate bounds
         if not (settings.MIN_COLS <= cols <= settings.MAX_COLS):
@@ -477,15 +543,21 @@ class SessionManager:
         return True, None, None
 
     def list_sessions(self) -> list[SessionIndexEntry]:
-        """List all sessions.
+        """List all sessions from the index store.
 
         Returns:
-            List of session index entries
+            list[SessionIndexEntry]: List of session index entries containing
+                session IDs, statuses, and timestamps for all known sessions.
         """
         return index_store.get_all_sessions()
 
     async def shutdown(self) -> None:
-        """Shutdown all sessions gracefully."""
+        """Shutdown all sessions gracefully.
+
+        Terminates all active sessions and clears the session dictionary.
+        Errors during individual session termination are logged but do not
+        prevent other sessions from being terminated.
+        """
         for session_id in list(self._sessions.keys()):
             try:
                 await self.terminate_session(session_id)

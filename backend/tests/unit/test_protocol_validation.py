@@ -24,14 +24,22 @@ class TestClientMessageParsing:
     """Tests for parsing client messages."""
 
     def test_parse_session_create(self) -> None:
-        """Test parsing session.create message."""
+        """Test parsing session.create message.
+
+        Verifies that a session.create message is correctly parsed into
+        a SessionCreateMessage instance with the expected type.
+        """
         data = {"type": "session.create"}
         message = parse_client_message(data)
         assert isinstance(message, SessionCreateMessage)
         assert message.type == "session.create"
 
     def test_parse_session_attach(self) -> None:
-        """Test parsing session.attach message."""
+        """Test parsing session.attach message.
+
+        Verifies that a session.attach message with a valid session ID
+        is correctly parsed into a SessionAttachMessage instance.
+        """
         session_id = "12345678-1234-1234-1234-123456789abc"
         data = {"type": "session.attach", "sessionId": session_id}
         message = parse_client_message(data)
@@ -39,13 +47,21 @@ class TestClientMessageParsing:
         assert message.sessionId == session_id
 
     def test_parse_session_list(self) -> None:
-        """Test parsing session.list message."""
+        """Test parsing session.list message.
+
+        Verifies that a session.list message is correctly parsed into
+        a SessionListMessage instance.
+        """
         data = {"type": "session.list"}
         message = parse_client_message(data)
         assert isinstance(message, SessionListMessage)
 
     def test_parse_session_terminate(self) -> None:
-        """Test parsing session.terminate message."""
+        """Test parsing session.terminate message.
+
+        Verifies that a session.terminate message with a valid session ID
+        is correctly parsed into a SessionTerminateMessage instance.
+        """
         session_id = "12345678-1234-1234-1234-123456789abc"
         data = {"type": "session.terminate", "sessionId": session_id}
         message = parse_client_message(data)
@@ -53,7 +69,11 @@ class TestClientMessageParsing:
         assert message.sessionId == session_id
 
     def test_parse_term_in(self) -> None:
-        """Test parsing term.in message."""
+        """Test parsing term.in message.
+
+        Verifies that a term.in message with session ID and data is
+        correctly parsed into a TerminalInputMessage instance.
+        """
         session_id = "12345678-1234-1234-1234-123456789abc"
         data = {"type": "term.in", "sessionId": session_id, "data": "hello\r\n"}
         message = parse_client_message(data)
@@ -61,7 +81,11 @@ class TestClientMessageParsing:
         assert message.data == "hello\r\n"
 
     def test_parse_term_resize(self) -> None:
-        """Test parsing term.resize message."""
+        """Test parsing term.resize message.
+
+        Verifies that a term.resize message with session ID and dimensions
+        is correctly parsed into a TerminalResizeMessage instance.
+        """
         session_id = "12345678-1234-1234-1234-123456789abc"
         data = {"type": "term.resize", "sessionId": session_id, "cols": 80, "rows": 24}
         message = parse_client_message(data)
@@ -70,7 +94,11 @@ class TestClientMessageParsing:
         assert message.rows == 24
 
     def test_parse_unknown_type_raises(self) -> None:
-        """Test that unknown message type raises ValueError."""
+        """Test that unknown message type raises ValueError.
+
+        Verifies that attempting to parse a message with an unrecognized
+        type raises a ValueError with an appropriate error message.
+        """
         data = {"type": "unknown.message"}
         with pytest.raises(ValueError, match="Unknown message type"):
             parse_client_message(data)
@@ -80,22 +108,38 @@ class TestMessageValidation:
     """Tests for message validation rules."""
 
     def test_session_create_rejects_extra_fields(self) -> None:
-        """Test that extra fields are rejected."""
+        """Test that extra fields are rejected.
+
+        Verifies that SessionCreateMessage raises ValidationError when
+        unexpected fields are provided, enforcing strict schema validation.
+        """
         with pytest.raises(ValidationError):
             SessionCreateMessage(type="session.create", extra_field="bad")  # type: ignore
 
     def test_session_attach_requires_session_id(self) -> None:
-        """Test that sessionId is required."""
+        """Test that sessionId is required.
+
+        Verifies that SessionAttachMessage raises ValidationError when
+        the required sessionId field is missing.
+        """
         with pytest.raises(ValidationError):
             SessionAttachMessage(type="session.attach")  # type: ignore
 
     def test_session_attach_validates_session_id_length(self) -> None:
-        """Test that sessionId must be 36 characters."""
+        """Test that sessionId must be 36 characters.
+
+        Verifies that SessionAttachMessage raises ValidationError when
+        the sessionId does not meet the required 36-character UUID length.
+        """
         with pytest.raises(ValidationError):
             SessionAttachMessage(type="session.attach", sessionId="short")
 
     def test_term_in_requires_data(self) -> None:
-        """Test that term.in requires data field."""
+        """Test that term.in requires data field.
+
+        Verifies that TerminalInputMessage raises ValidationError when
+        the required data field is missing from the message.
+        """
         with pytest.raises(ValidationError):
             TerminalInputMessage(
                 type="term.in",
@@ -103,7 +147,11 @@ class TestMessageValidation:
             )  # type: ignore
 
     def test_term_resize_requires_positive_dimensions(self) -> None:
-        """Test that resize requires positive dimensions."""
+        """Test that resize requires positive dimensions.
+
+        Verifies that TerminalResizeMessage raises ValidationError when
+        cols or rows are zero or negative values.
+        """
         with pytest.raises(ValidationError):
             TerminalResizeMessage(
                 type="term.resize",
@@ -117,14 +165,22 @@ class TestServerMessages:
     """Tests for server message creation."""
 
     def test_server_hello_message(self) -> None:
-        """Test ServerHelloMessage creation."""
+        """Test ServerHelloMessage creation.
+
+        Verifies that ServerHelloMessage is created with correct default
+        values for type and protocolVersion, and a valid UTC timestamp.
+        """
         msg = ServerHelloMessage(serverTime=utc_now_iso())
         assert msg.type == "server.hello"
         assert msg.protocolVersion == 1
         assert msg.serverTime.endswith("Z")
 
     def test_error_message(self) -> None:
-        """Test ErrorMessage creation."""
+        """Test ErrorMessage creation.
+
+        Verifies that ErrorMessage is created with the correct type,
+        error code, and message fields.
+        """
         msg = ErrorMessage(
             code=ErrorCodes.SESSION_NOT_FOUND,
             message="Session not found",
@@ -133,7 +189,11 @@ class TestServerMessages:
         assert msg.code == "SESSION_NOT_FOUND"
 
     def test_session_created_message(self) -> None:
-        """Test SessionCreatedMessage creation."""
+        """Test SessionCreatedMessage creation.
+
+        Verifies that SessionCreatedMessage is created with the correct
+        type and properly embeds the session info object.
+        """
         session_info = SessionInfo(
             sessionId="12345678-1234-1234-1234-123456789abc",
             status="running",
@@ -153,7 +213,11 @@ class TestUtcNowIso:
     """Tests for UTC timestamp generation."""
 
     def test_utc_now_iso_format(self) -> None:
-        """Test that utc_now_iso returns correct format."""
+        """Test that utc_now_iso returns correct format.
+
+        Verifies that the UTC timestamp matches the expected ISO 8601
+        format: YYYY-MM-DDTHH:MM:SS.sssZ (24 characters with Z suffix).
+        """
         ts = utc_now_iso()
         assert ts.endswith("Z")
         # Should match pattern: YYYY-MM-DDTHH:MM:SS.sssZ

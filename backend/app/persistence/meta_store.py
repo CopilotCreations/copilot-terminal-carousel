@@ -37,7 +37,14 @@ class MetaStore:
         self._base_path = base_path
 
     def _get_meta_path(self, session_id: str) -> Path:
-        """Get the meta.json path for a session."""
+        """Get the meta.json path for a session.
+
+        Args:
+            session_id: Session UUID.
+
+        Returns:
+            Path to the session's meta.json file.
+        """
         if self._base_path:
             return self._base_path / session_id / "meta.json"
         return get_meta_path(session_id)

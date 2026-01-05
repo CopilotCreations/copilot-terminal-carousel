@@ -17,7 +17,14 @@ logger = get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    """Application lifespan manager for startup and shutdown."""
+    """Manage application lifecycle for startup and shutdown.
+
+    Args:
+        app: The FastAPI application instance.
+
+    Yields:
+        None: Control is yielded to the application after startup completes.
+    """
     # Startup
     setup_logging()
 
@@ -56,7 +63,16 @@ app = FastAPI(
 # Middleware to enforce localhost-only access
 @app.middleware("http")
 async def localhost_only_middleware(request: Request, call_next):  # type: ignore[no-untyped-def]
-    """Reject non-localhost HTTP requests unless allowed."""
+    """Enforce localhost-only access for HTTP requests.
+
+    Args:
+        request: The incoming HTTP request.
+        call_next: The next middleware or route handler in the chain.
+
+    Returns:
+        JSONResponse with 403 status if access is denied, otherwise the
+        response from the next handler.
+    """
     client_host = request.client.host if request.client else None
 
     if client_host != "127.0.0.1" and not settings.ALLOW_NON_LOCALHOST:
@@ -85,12 +101,23 @@ if frontend_dist.exists():
 
     @app.get("/")
     async def serve_index() -> FileResponse:
-        """Serve the SPA index.html."""
+        """Serve the SPA index.html file.
+
+        Returns:
+            FileResponse: The index.html file with text/html media type.
+        """
         return FileResponse(frontend_dist / "index.html", media_type="text/html")
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str) -> FileResponse:
-        """Serve SPA for all routes (client-side routing)."""
+        """Serve static files or fallback to index.html for client-side routing.
+
+        Args:
+            full_path: The requested URL path.
+
+        Returns:
+            FileResponse: The requested file if it exists, otherwise index.html.
+        """
         file_path = frontend_dist / full_path
         if file_path.exists() and file_path.is_file():
             return FileResponse(file_path)
@@ -98,7 +125,11 @@ if frontend_dist.exists():
 else:
     @app.get("/")
     async def no_frontend() -> JSONResponse:
-        """Return message when frontend is not built."""
+        """Return a message indicating the frontend is not built.
+
+        Returns:
+            JSONResponse: A message with instructions to build the frontend.
+        """
         return JSONResponse(
             content={
                 "message": "Frontend not built. Run 'npm run build' in the frontend directory.",
@@ -109,5 +140,9 @@ else:
 
 @app.get("/health")
 async def health_check() -> dict[str, str]:
-    """Health check endpoint."""
+    """Return the health status of the application.
+
+    Returns:
+        dict[str, str]: A dictionary containing the health status.
+    """
     return {"status": "healthy"}

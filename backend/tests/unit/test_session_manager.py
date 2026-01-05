@@ -12,7 +12,14 @@ class TestSessionManager:
 
     @pytest.fixture
     def manager(self, tmp_path: Path) -> SessionManager:
-        """Create a SessionManager with mock PTY."""
+        """Create a SessionManager with mock PTY.
+
+        Args:
+            tmp_path: Pytest fixture providing a temporary directory path.
+
+        Returns:
+            A SessionManager instance configured with mock PTY for testing.
+        """
         # Set environment variable for DATA_DIR
         os.environ["DATA_DIR"] = str(tmp_path / "data")
         
@@ -23,7 +30,11 @@ class TestSessionManager:
 
     @pytest.mark.asyncio
     async def test_create_session_success(self, manager: SessionManager) -> None:
-        """Test successful session creation."""
+        """Test successful session creation.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         session, error_code, error_msg = await manager.create_session()
 
         assert session is not None
@@ -36,7 +47,12 @@ class TestSessionManager:
     async def test_create_session_max_sessions(
         self, manager: SessionManager, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Test that max sessions limit is enforced."""
+        """Test that max sessions limit is enforced.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+            monkeypatch: Pytest fixture for patching attributes.
+        """
         from app.config import settings
 
         original_max = settings.MAX_SESSIONS
@@ -57,7 +73,11 @@ class TestSessionManager:
 
     @pytest.mark.asyncio
     async def test_get_session(self, manager: SessionManager) -> None:
-        """Test getting a session by ID."""
+        """Test getting a session by ID.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         created, _, _ = await manager.create_session()
         assert created is not None
 
@@ -67,13 +87,21 @@ class TestSessionManager:
 
     @pytest.mark.asyncio
     async def test_get_session_not_found(self, manager: SessionManager) -> None:
-        """Test getting a non-existent session returns None."""
+        """Test getting a non-existent session returns None.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         session = manager.get_session("nonexistent-id-1234567890123456")
         assert session is None
 
     @pytest.mark.asyncio
     async def test_attach_session(self, manager: SessionManager) -> None:
-        """Test attaching to a session."""
+        """Test attaching to a session.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         created, _, _ = await manager.create_session()
         assert created is not None
 
@@ -87,7 +115,11 @@ class TestSessionManager:
 
     @pytest.mark.asyncio
     async def test_attach_session_not_found(self, manager: SessionManager) -> None:
-        """Test attaching to a non-existent session."""
+        """Test attaching to a non-existent session.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         session, error_code, error_msg = await manager.attach_session(
             "nonexistent-id-1234567890123456", "client-1"
         )
@@ -97,7 +129,11 @@ class TestSessionManager:
 
     @pytest.mark.asyncio
     async def test_terminate_session(self, manager: SessionManager) -> None:
-        """Test terminating a session."""
+        """Test terminating a session.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         created, _, _ = await manager.create_session()
         assert created is not None
 
@@ -110,7 +146,11 @@ class TestSessionManager:
 
     @pytest.mark.asyncio
     async def test_terminate_session_not_found(self, manager: SessionManager) -> None:
-        """Test terminating a non-existent session."""
+        """Test terminating a non-existent session.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         exit_code, error_code, error_msg = await manager.terminate_session(
             "nonexistent-id-1234567890123456"
         )
@@ -119,7 +159,11 @@ class TestSessionManager:
 
     @pytest.mark.asyncio
     async def test_send_input_success(self, manager: SessionManager) -> None:
-        """Test sending input to a session."""
+        """Test sending input to a session.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         created, _, _ = await manager.create_session()
         assert created is not None
 
@@ -134,7 +178,12 @@ class TestSessionManager:
     async def test_send_input_too_large(
         self, manager: SessionManager, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Test that large input is rejected."""
+        """Test that large input is rejected.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+            monkeypatch: Pytest fixture for patching attributes.
+        """
         from app.config import settings
 
         monkeypatch.setattr(settings, "MAX_INPUT_CHARS_PER_MESSAGE", 100)
@@ -151,7 +200,11 @@ class TestSessionManager:
         assert error_code == ErrorCodes.INPUT_TOO_LARGE
 
     def test_send_input_session_not_found(self, manager: SessionManager) -> None:
-        """Test sending input to non-existent session."""
+        """Test sending input to non-existent session.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         success, error_code, error_msg = manager.send_input(
             "nonexistent-id-1234567890123456", "test"
         )
@@ -165,7 +218,15 @@ class TestResizeSession:
 
     @pytest.fixture
     def manager(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SessionManager:
-        """Create a SessionManager with mock PTY."""
+        """Create a SessionManager with mock PTY and configured resize bounds.
+
+        Args:
+            tmp_path: Pytest fixture providing a temporary directory path.
+            monkeypatch: Pytest fixture for patching attributes.
+
+        Returns:
+            A SessionManager instance configured with mock PTY and resize bounds.
+        """
         from app.config import settings
 
         os.environ["DATA_DIR"] = str(tmp_path / "data")
@@ -180,7 +241,11 @@ class TestResizeSession:
 
     @pytest.mark.asyncio
     async def test_resize_valid(self, manager: SessionManager) -> None:
-        """Test valid resize."""
+        """Test valid resize.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         created, _, _ = await manager.create_session()
         assert created is not None
 
@@ -193,7 +258,11 @@ class TestResizeSession:
 
     @pytest.mark.asyncio
     async def test_resize_cols_below_min(self, manager: SessionManager) -> None:
-        """Test resize with columns below minimum."""
+        """Test resize with columns below minimum.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         created, _, _ = await manager.create_session()
         assert created is not None
 
@@ -206,7 +275,11 @@ class TestResizeSession:
 
     @pytest.mark.asyncio
     async def test_resize_cols_above_max(self, manager: SessionManager) -> None:
-        """Test resize with columns above maximum."""
+        """Test resize with columns above maximum.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         created, _, _ = await manager.create_session()
         assert created is not None
 
@@ -219,7 +292,11 @@ class TestResizeSession:
 
     @pytest.mark.asyncio
     async def test_resize_rows_below_min(self, manager: SessionManager) -> None:
-        """Test resize with rows below minimum."""
+        """Test resize with rows below minimum.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         created, _, _ = await manager.create_session()
         assert created is not None
 
@@ -232,7 +309,11 @@ class TestResizeSession:
 
     @pytest.mark.asyncio
     async def test_resize_rows_above_max(self, manager: SessionManager) -> None:
-        """Test resize with rows above maximum."""
+        """Test resize with rows above maximum.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         created, _, _ = await manager.create_session()
         assert created is not None
 
@@ -244,7 +325,11 @@ class TestResizeSession:
         assert error_code == ErrorCodes.INVALID_RESIZE
 
     def test_resize_session_not_found(self, manager: SessionManager) -> None:
-        """Test resize on non-existent session."""
+        """Test resize on non-existent session.
+
+        Args:
+            manager: SessionManager fixture with mock PTY.
+        """
         success, error_code, error_msg = manager.resize_session(
             "nonexistent-id-1234567890123456", 80, 24
         )

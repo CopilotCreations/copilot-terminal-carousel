@@ -9,7 +9,13 @@ class TestTimeUtilities:
     """Tests for time utility functions."""
 
     def test_utc_now_iso_format(self) -> None:
-        """Test that utc_now_iso returns correct format."""
+        """Test that utc_now_iso returns correct format.
+
+        Validates that the returned timestamp:
+            - Ends with 'Z' suffix indicating UTC
+            - Has exactly 24 characters
+            - Contains proper date/time separators
+        """
         ts = utc_now_iso()
         
         assert ts.endswith("Z")
@@ -20,7 +26,11 @@ class TestTimeUtilities:
         assert ts[10] == "T"
 
     def test_utc_now_iso_is_utc(self) -> None:
-        """Test that timestamp is in UTC."""
+        """Test that timestamp is in UTC.
+
+        Verifies the generated timestamp represents current UTC time
+        by parsing it and comparing to the current datetime.
+        """
         ts = utc_now_iso()
         
         # Parse and verify it's close to current time
@@ -31,7 +41,11 @@ class TestTimeUtilities:
         assert diff < 2  # Within 2 seconds
 
     def test_parse_iso_timestamp_with_z(self) -> None:
-        """Test parsing timestamp with Z suffix."""
+        """Test parsing timestamp with Z suffix.
+
+        Verifies that ISO 8601 timestamps ending with 'Z' (Zulu time)
+        are correctly parsed into datetime components.
+        """
         ts = "2025-01-01T12:00:00.000Z"
         parsed = parse_iso_timestamp(ts)
         
@@ -43,7 +57,11 @@ class TestTimeUtilities:
         assert parsed.second == 0
 
     def test_parse_iso_timestamp_without_z(self) -> None:
-        """Test parsing timestamp without Z suffix."""
+        """Test parsing timestamp without Z suffix.
+
+        Verifies that ISO 8601 timestamps with explicit timezone offset
+        (+00:00) are correctly parsed into datetime components.
+        """
         ts = "2025-01-01T12:00:00.000+00:00"
         parsed = parse_iso_timestamp(ts)
         

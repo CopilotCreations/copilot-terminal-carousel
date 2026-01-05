@@ -11,20 +11,35 @@ class TestIndexStore:
 
     @pytest.fixture
     def index_store(self, tmp_path: Path) -> IndexStore:
-        """Create an IndexStore with a temp path."""
+        """Create an IndexStore with a temp path.
+
+        Args:
+            tmp_path: Pytest fixture providing a temporary directory path.
+
+        Returns:
+            An IndexStore instance configured to use a temporary index file.
+        """
         index_path = tmp_path / "sessions" / "index.json"
         index_path.parent.mkdir(parents=True, exist_ok=True)
         return IndexStore(index_path=index_path)
 
     def test_load_empty_index(self, index_store: IndexStore) -> None:
-        """Test loading when index doesn't exist returns empty structure."""
+        """Test loading when index doesn't exist returns empty structure.
+
+        Args:
+            index_store: The IndexStore fixture instance.
+        """
         index = index_store.load()
         assert index["protocolVersion"] == 1
         assert index["sessions"] == []
         assert "updatedAt" in index
 
     def test_save_and_load(self, index_store: IndexStore) -> None:
-        """Test saving and loading index."""
+        """Test saving and loading index.
+
+        Args:
+            index_store: The IndexStore fixture instance.
+        """
         index = index_store.load()
         index["sessions"].append({
             "sessionId": "test-session-id-1234-567890123456",
@@ -39,7 +54,11 @@ class TestIndexStore:
         assert loaded["sessions"][0]["sessionId"] == "test-session-id-1234-567890123456"
 
     def test_add_session(self, index_store: IndexStore) -> None:
-        """Test adding a session to the index."""
+        """Test adding a session to the index.
+
+        Args:
+            index_store: The IndexStore fixture instance.
+        """
         session_id = "12345678-1234-1234-1234-123456789abc"
         index_store.add_session(
             session_id=session_id,
@@ -54,7 +73,11 @@ class TestIndexStore:
         assert index["sessions"][0]["status"] == "running"
 
     def test_update_session_status(self, index_store: IndexStore) -> None:
-        """Test updating a session's status."""
+        """Test updating a session's status.
+
+        Args:
+            index_store: The IndexStore fixture instance.
+        """
         session_id = "12345678-1234-1234-1234-123456789abc"
         index_store.add_session(
             session_id=session_id,
@@ -69,7 +92,11 @@ class TestIndexStore:
         assert index["sessions"][0]["status"] == "exited"
 
     def test_get_all_sessions_sorted(self, index_store: IndexStore) -> None:
-        """Test that sessions are returned sorted by createdAt descending."""
+        """Test that sessions are returned sorted by createdAt descending.
+
+        Args:
+            index_store: The IndexStore fixture instance.
+        """
         index_store.add_session(
             session_id="session-1-aaaaaaaaaaaaaaaaaaaaaaaa",
             status="running",
@@ -97,7 +124,11 @@ class TestIndexStore:
         assert sessions[2].sessionId == "session-1-aaaaaaaaaaaaaaaaaaaaaaaa"
 
     def test_get_session(self, index_store: IndexStore) -> None:
-        """Test getting a specific session."""
+        """Test getting a specific session.
+
+        Args:
+            index_store: The IndexStore fixture instance.
+        """
         session_id = "12345678-1234-1234-1234-123456789abc"
         index_store.add_session(
             session_id=session_id,
@@ -111,12 +142,20 @@ class TestIndexStore:
         assert session.sessionId == session_id
 
     def test_get_session_not_found(self, index_store: IndexStore) -> None:
-        """Test getting a non-existent session returns None."""
+        """Test getting a non-existent session returns None.
+
+        Args:
+            index_store: The IndexStore fixture instance.
+        """
         session = index_store.get_session("nonexistent-id-12345678901234")
         assert session is None
 
     def test_remove_session(self, index_store: IndexStore) -> None:
-        """Test removing a session from the index."""
+        """Test removing a session from the index.
+
+        Args:
+            index_store: The IndexStore fixture instance.
+        """
         session_id = "12345678-1234-1234-1234-123456789abc"
         index_store.add_session(
             session_id=session_id,
@@ -131,7 +170,11 @@ class TestIndexStore:
         assert len(sessions) == 0
 
     def test_atomic_write_produces_valid_json(self, index_store: IndexStore) -> None:
-        """Test that atomic write produces valid JSON."""
+        """Test that atomic write produces valid JSON.
+
+        Args:
+            index_store: The IndexStore fixture instance.
+        """
         session_id = "12345678-1234-1234-1234-123456789abc"
         index_store.add_session(
             session_id=session_id,
@@ -150,7 +193,11 @@ class TestIndexStore:
         assert len(data["sessions"]) == 1
 
     def test_protocol_version(self, index_store: IndexStore) -> None:
-        """Test that protocol version is set correctly."""
+        """Test that protocol version is set correctly.
+
+        Args:
+            index_store: The IndexStore fixture instance.
+        """
         index = index_store.load()
         assert index["protocolVersion"] == IndexStore.PROTOCOL_VERSION
         assert index["protocolVersion"] == 1

@@ -22,20 +22,40 @@ class TranscriptStore:
         self._seq_counters: dict[str, int] = {}
 
     def _get_transcript_path(self, session_id: str) -> Path:
-        """Get the transcript.jsonl path for a session."""
+        """Get the transcript.jsonl path for a session.
+
+        Args:
+            session_id: Session UUID.
+
+        Returns:
+            Path to the transcript.jsonl file for the session.
+        """
         if self._base_path:
             return self._base_path / session_id / "transcript.jsonl"
         return get_transcript_path(session_id)
 
     def _get_next_seq(self, session_id: str) -> int:
-        """Get the next sequence number for a session."""
+        """Get the next sequence number for a session.
+
+        Args:
+            session_id: Session UUID.
+
+        Returns:
+            The next sequence number for the session.
+        """
         if session_id not in self._seq_counters:
             self._seq_counters[session_id] = 0
         self._seq_counters[session_id] += 1
         return self._seq_counters[session_id]
 
     def _reset_seq(self, session_id: str) -> None:
-        """Reset sequence counter for a session (for new sessions)."""
+        """Reset sequence counter for a session.
+
+        Used when initializing new sessions to start sequence numbering from zero.
+
+        Args:
+            session_id: Session UUID.
+        """
         self._seq_counters[session_id] = 0
 
     def _create_event(
